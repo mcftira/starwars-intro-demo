@@ -1,0 +1,17 @@
+{
+  "name": "lightspeed-prezi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev --port 3030",
+    "build": "slidev build --base ./"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.19.2",
+    "@slidev/theme-default": "latest",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

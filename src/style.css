@@ -1,0 +1,124 @@
+/* ============ FONTS — lokális, offline (SIL OFL) ============ */
+@font-face{font-family:'Red Hat Display';font-style:normal;font-weight:300 900;font-display:swap;src:url('./fonts/RedHatDisplay-var-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+2026;}
+@font-face{font-family:'Red Hat Display';font-style:normal;font-weight:300 900;font-display:swap;src:url('./fonts/RedHatDisplay-var-latin-ext.woff2') format('woff2');unicode-range:U+0100-017F,U+02C7,U+02DD;}
+@font-face{font-family:'Red Hat Text';font-style:normal;font-weight:300 700;font-display:swap;src:url('./fonts/RedHatText-var-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+2026;}
+@font-face{font-family:'Red Hat Text';font-style:normal;font-weight:300 700;font-display:swap;src:url('./fonts/RedHatText-var-latin-ext.woff2') format('woff2');unicode-range:U+0100-017F,U+02C7,U+02DD;}
+@font-face{font-family:'Red Hat Mono';font-style:normal;font-weight:300 700;font-display:swap;src:url('./fonts/RedHatMono-var-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+2026;}
+@font-face{font-family:'Red Hat Mono';font-style:normal;font-weight:300 700;font-display:swap;src:url('./fonts/RedHatMono-var-latin-ext.woff2') format('woff2');unicode-range:U+0100-017F,U+02C7,U+02DD;}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:100 900;font-display:swap;src:url('./fonts/LibreFranklin-var-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+2026;}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:100 900;font-display:swap;src:url('./fonts/LibreFranklin-var-latin-ext.woff2') format('woff2');unicode-range:U+0100-017F,U+02C7,U+02DD;}
+
+/* ============ LIGHTSPEED PREZI — GLOBAL TOKENS ============ */
+:root{
+  --lp-bg:#04060a;
+  --lp-glass:linear-gradient(180deg,#121722f2,#0c1017f2);
+  --lp-glass-flat:#10151ff2;
+  --lp-glass-head:#171e2b;
+  --lp-border:#27303f;
+  --lp-border-soft:#1e2632;
+  --lp-text:#e8e6df;
+  --lp-dim:#8b94a3;
+  --lp-gold:#e8b23a;
+  --lp-steel:#6ea8d8;
+  --lp-ok:#6fbf73;
+  --lp-warn:#e8b23a;
+  --lp-err:#e05d5d;
+  --lp-yellow:#ffe81f;   /* csak a Star Wars intro használja */
+  --lp-red:#ee0000;      /* csak az OpenShift brand-szó */
+  --lp-mono:"Red Hat Mono","JetBrains Mono","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --lp-sans:"Red Hat Text","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --lp-display:"Red Hat Display","Red Hat Text","Segoe UI",Arial,sans-serif;
+  --lp-crawl:"Libre Franklin","News Gothic MT","Franklin Gothic Medium",Arial,sans-serif;
+}
+body{background:var(--lp-bg)}
+.slidev-layout{
+  background:transparent;
+  color:var(--lp-text);
+  font-family:var(--lp-sans);
+  padding:0;
+}
+.slidev-layout h1,.slidev-layout h2,.slidev-layout h3,.slidev-layout p{color:inherit}
+
+/* ============ SHARED BUILDING BLOCKS (world-space components) ============ */
+.lp-mono{font-family:var(--lp-mono)}
+.lp-kicker{font-family:var(--lp-mono);letter-spacing:.4em;color:var(--lp-steel);text-transform:uppercase}
+.lp-kicker .idx{color:var(--lp-gold)}
+
+/* terminal */
+.lp-term{background:#0a0e14f2;border:1px solid var(--lp-border);border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,.55);backdrop-filter:blur(8px);text-align:left}
+.lp-term-bar{display:flex;align-items:center;gap:10px;background:var(--lp-glass-head);padding:14px 18px;
+  border-bottom:1px solid var(--lp-border)}
+.lp-term-bar .dot{width:13px;height:13px;border-radius:50%;opacity:.85}
+.lp-term-bar .r{background:var(--lp-err)}.lp-term-bar .y{background:var(--lp-warn)}.lp-term-bar .g{background:var(--lp-ok)}
+.lp-term-bar .ttl{margin-left:14px;font-family:var(--lp-mono);letter-spacing:.2em;color:var(--lp-dim);text-transform:uppercase}
+.lp-term-body{padding:24px 28px;font-family:var(--lp-mono);line-height:1.75;overflow:hidden}
+.lp-term-body .ln{white-space:pre-wrap;word-break:break-word}
+.lp-term-body .ps{color:var(--lp-ok)}
+.lp-term-body .cm{color:#dfe5ec}
+.lp-term-body .out{color:var(--lp-dim)}
+.lp-term-body .cy{color:var(--lp-steel)}
+.lp-term-body .yl{color:var(--lp-gold)}
+.lp-term-body .rd{color:var(--lp-err)}
+.lp-cursor{display:inline-block;width:.55em;height:1.15em;background:var(--lp-text);vertical-align:text-bottom;
+  animation:lp-blink 1s steps(1) infinite}
+@keyframes lp-blink{0%,45%{opacity:1}60%,100%{opacity:0}}
+
+/* world panel */
+.lp-panel{background:var(--lp-glass);border:1px solid var(--lp-border);border-radius:18px;
+  padding:56px 64px;backdrop-filter:blur(8px);box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:left}
+.lp-panel h3{font-family:var(--lp-display);font-weight:800;line-height:1.1;letter-spacing:-.01em}
+.lp-panel h3 .accent{color:var(--lp-gold)}
+
+/* bullet list */
+.lp-points{list-style:none;margin:0;padding:0}
+.lp-points li{position:relative;padding:16px 0 16px 40px;line-height:1.5;border-bottom:1px solid var(--lp-border-soft);color:var(--lp-text)}
+.lp-points li:last-child{border-bottom:none}
+.lp-points li::before{content:"";position:absolute;left:2px;top:28px;width:16px;height:3px;background:var(--lp-steel);border-radius:2px}
+.lp-points li b{color:#fff;font-weight:700}
+.lp-points li .m{font-family:var(--lp-mono);font-size:.85em;color:var(--lp-steel)}
+.lp-points li.dim{color:var(--lp-dim)}
+
+/* steps */
+.lp-steps{list-style:none;counter-reset:s;margin:0;padding:0}
+.lp-steps li{counter-increment:s;position:relative;padding:14px 0 14px 74px;line-height:1.5;border-bottom:1px solid var(--lp-border-soft)}
+.lp-steps li:last-child{border-bottom:none}
+.lp-steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:14px;
+  font-family:var(--lp-mono);font-size:.85em;color:var(--lp-gold);letter-spacing:.1em}
+.lp-steps li .m{font-family:var(--lp-mono);font-size:.85em;color:var(--lp-steel)}
+
+/* use-case cards */
+.lp-uc{border:1px solid var(--lp-border);background:var(--lp-glass-flat);border-radius:14px;padding:30px 34px;position:relative}
+.lp-uc .no{position:absolute;top:22px;right:28px;font-family:var(--lp-mono);color:var(--lp-gold);letter-spacing:.15em}
+.lp-uc .q{font-family:var(--lp-display);font-weight:700;line-height:1.35;color:#fff}
+.lp-uc .q::before{content:"„";color:var(--lp-gold)}
+.lp-uc .q::after{content:"”";color:var(--lp-gold)}
+.lp-uc .tag{margin-top:18px;font-family:var(--lp-mono);letter-spacing:.2em;color:var(--lp-dim);text-transform:uppercase}
+.lp-uc .tag b{color:var(--lp-steel);font-weight:400}
+
+/* arch nodes */
+.lp-arch{display:grid;grid-template-columns:1fr 90px 1.35fr 90px 1fr;align-items:stretch}
+.lp-arch .arrow{display:flex;align-items:center;justify-content:center;position:relative}
+.lp-arch .arrow::before{content:"";width:100%;height:2px;background:linear-gradient(90deg,var(--lp-steel),transparent)}
+.lp-arch .arrow::after{content:"";position:absolute;right:8px;width:13px;height:13px;border-top:2px solid var(--lp-steel);
+  border-right:2px solid var(--lp-steel);transform:rotate(45deg)}
+.lp-anode{background:var(--lp-glass-flat);border:1px solid var(--lp-border);border-radius:14px;padding:28px 32px}
+.lp-anode h4{font-family:var(--lp-mono);letter-spacing:.25em;color:var(--lp-steel);text-transform:uppercase;margin-bottom:14px}
+.lp-anode .big{font-weight:700;line-height:1.3;margin-bottom:14px}
+.lp-anode ul{list-style:none;margin:0;padding:0}
+.lp-anode li{font-family:var(--lp-mono);color:var(--lp-dim);padding:7px 0;border-top:1px solid var(--lp-border-soft);line-height:1.45}
+.lp-anode li b{color:var(--lp-text)}
+.lp-subnode{background:#0d121af5;border:1px dashed var(--lp-border);border-radius:14px;padding:22px 32px}
+.lp-subnode h4{font-family:var(--lp-mono);letter-spacing:.25em;color:var(--lp-gold);text-transform:uppercase;margin-bottom:10px}
+.lp-subnode p{font-family:var(--lp-mono);color:var(--lp-dim);line-height:1.6}
+.lp-subnode p b{color:var(--lp-text)}
+
+/* quote */
+.lp-quote{font-family:var(--lp-display);font-weight:700;line-height:1.3;color:#fff}
+.lp-quote::before{content:"„";color:var(--lp-gold);font-size:1.5em;line-height:0;margin-right:8px}
+.lp-quote-who{margin-top:18px;font-family:var(--lp-mono);letter-spacing:.25em;color:var(--lp-dim);text-transform:uppercase}
+
+/* links */
+.lp-links a{color:var(--lp-steel);text-decoration:none;border-bottom:1px solid transparent}
+.lp-links a:hover{border-bottom-color:var(--lp-steel)}
+.lp-links .lbl{display:inline-block;width:340px;color:var(--lp-dim);letter-spacing:.2em;text-transform:uppercase}
