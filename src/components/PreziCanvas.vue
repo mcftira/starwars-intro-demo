@@ -4,23 +4,94 @@ import { useSlideContext } from '@slidev/client'
 
 const { $clicks } = useSlideContext()
 
-/* ---------- waypoints: x, y, zoom, rotation(deg), label ----------
-   Grid: oszlopok x = 1600 / 4800 / 8000 / 11200, sorok y = 1100 / 3300 / 5500.
-   A szekciók center-anchorúak: a waypoint pontosan a panel közepe. */
+// Demo content also drives the summary cards and camera stops.
+const demos = [
+  {
+    title: 'Klaszterverzió', summary: 'OpenShift és Kubernetes verzió',
+    question: 'Mi a klaszter verziója (OpenShift és Kubernetes)?',
+    principle: 'Élő klaszteradatból azonosítja az aktuális állapotot, majd közérthetően összefoglalja.',
+    flow: [
+      ['Felismerés', 'Azonosítja a platform és az orchesztrátor aktuális verzióját.'],
+      ['Javaslat', 'Kontextusba helyezi a kompatibilitási és frissítési lehetőségeket.'],
+      ['Ellenőrzés', 'Összeveti a verziókat a klaszter tényleges állapotával.'],
+    ],
+    x: 8000, y: 3300,
+  },
+  {
+    title: 'Init:CrashLoopBackOff', summary: 'Hiba feltárása és javítása',
+    question: 'Miért került a pod Init:CrashLoopBackOff állapotba?',
+    followup: 'Végezd el a javítást a deployment-ben.',
+    principle: 'A tünettől eljut a kiváltó okig, majd biztonságos javítási irányt ad.',
+    flow: [
+      ['Felismerés', 'Feltárja, melyik init lépés és milyen ok miatt hiúsul meg.'],
+      ['Javaslat', 'A kiváltó okhoz illeszkedő, minimális javítást ajánl.'],
+      ['Ellenőrzés', 'Visszaigazolja a sikeres inicializálást és az egészséges rolloutot.'],
+    ],
+    x: 4800, y: 3300,
+  },
+  {
+    title: 'HA deployment', summary: 'Podok elosztása két adatközpont között',
+    question: 'Hogyan lehetne HA a podhoz kapcsolódó deployment?',
+    followup: 'TopologySpreadConstraints-szel oldjuk meg; a topologyKey a node-on lévő site label legyen. Amennyire lehet, egyenletesen osszuk szét a podokat a két adatközpont között.',
+    principle: 'A rendelkezésre állási célt a klaszter topológiájához illesztett elhelyezési szabállyá fordítja.',
+    flow: [
+      ['Felismerés', 'Felméri az aktuális példányszámot és a topológiai kockázatokat.'],
+      ['Javaslat', 'Egyenletes, site-tudatos pod-elhelyezési elvet alakít ki.'],
+      ['Ellenőrzés', 'Megvizsgálja, hogy a podok valóban a kívánt módon oszlanak-e el.'],
+    ],
+    x: 1600, y: 3300,
+  },
+  {
+    title: 'Aggregált logok', summary: 'Loggyűjtő, verzió és konzolos elérés',
+    question: 'Van a klaszterben telepített loggyűjtő, amivel meg tudom nézni aggregáltan a deployment összes példányának a logját? Ha van, akkor mi a verziója és a konzolon hol érem el?',
+    followup: 'Kérek egy PromQL-t, ami megjeleníti a pod nevét és a message-t.',
+    principle: 'Felderíti az elérhető megfigyelhetőségi képességeket, és egységes keresési utat mutat.',
+    flow: [
+      ['Felismerés', 'Felderíti a telepített loggyűjtési és keresési képességeket.'],
+      ['Javaslat', 'Egységes lekérdezési utat ad az alkalmazás összes példányához.'],
+      ['Ellenőrzés', 'Igazolja, hogy minden replika logja azonosítható és kereshető.'],
+    ],
+    x: 1600, y: 5500,
+  },
+  {
+    title: 'Autoscaler', summary: 'Skálázás és egyedi metrikák',
+    question: 'Az alkalmazáshoz hogyan állítsak be autoscaler-t? Van olyan telepített megoldás, amiben egyedi metrika alapján skáláz a rendszer?',
+    principle: 'A terhelési jel és a telepített képességek alapján megfelelő skálázási stratégiát választ.',
+    flow: [
+      ['Felismerés', 'Felméri az alkalmazás erőforrásait, metrikáit és skálázási képességeit.'],
+      ['Javaslat', 'A terhelési jelhez illő skálázási modellt választ.'],
+      ['Ellenőrzés', 'Visszaméri, hogy a replika-szám a kívánt jel alapján változik-e.'],
+    ],
+    x: 4800, y: 5500,
+  },
+  {
+    title: 'Ingress megoldások', summary: 'Controllerek és támogatott annotációk',
+    question: 'Milyen ingress kiszolgáló megoldások érhetők el a klaszterben? Mik a támogatott ingress annotációk az egyes ingress-controller-eknél?',
+    principle: 'A klaszter leltárát és a támogatási tudást összekapcsolva összehasonlíthatóvá teszi a lehetőségeket.',
+    flow: [
+      ['Felismerés', 'Azonosítja az elérhető controllereket és azok támogatott képességeit.'],
+      ['Javaslat', 'Az alkalmazás igényeihez illő ingress megoldást választ.'],
+      ['Ellenőrzés', 'Igazolja az elérhetőséget és a választott beállítás támogatottságát.'],
+    ],
+    x: 8000, y: 5500,
+  },
+]
+
+/* Camera stops: x, y, zoom, rotation (degrees), label. */
 const W = [
-  { x: 1600,  y: 1100, z: 0.58, r: 0,   label: 'OpenShift Lightspeed' },
-  { x: 6400,  y: 3300, z: 0.15, r: 0,   label: 'Áttekintés' },
-  { x: 4800,  y: 1100, z: 0.62, r: 0,   label: 'Agenda' },
-  { x: 8000,  y: 1100, z: 0.42, r: 0,   label: 'Architektúra high level' },
-  { x: 11200, y: 1100, z: 0.62, r: -2,  label: 'Miért helyi LLM?' },
-  { x: 11200, y: 3300, z: 0.56, r: 0,   label: 'Demó — use-case-ek' },
-  { x: 8000,  y: 3300, z: 0.60, r: 0,   label: 'UC-01 · CrashLoop' },
-  { x: 4800,  y: 3300, z: 0.60, r: 0,   label: 'UC-02 · HA deployment' },
-  { x: 4800,  y: 5500, z: 0.56, r: 2,   label: 'UC-03 · Aggregált log' },
-  { x: 8000,  y: 5500, z: 0.60, r: 0,   label: 'UC-04 · Autoscaler' },
-  { x: 11200, y: 5500, z: 0.54, r: -2,  label: 'Továbbfejlesztés' },
-  { x: 1600,  y: 3300, z: 0.56, r: 0,   label: 'Összegzés + Q&A' },
-  { x: 6400,  y: 3300, z: 0.15, r: 0,   label: 'Köszönjük!' },
+  { x: 1600,  y: 1100, z: 0.58, r: 0,  label: 'OpenShift Lightspeed' },
+  { x: 6400,  y: 4400, z: 0.15, r: 0,  label: 'Áttekintés' },
+  { x: 4800,  y: 1100, z: 0.62, r: 0,  label: 'Agenda' },
+  { x: 8000,  y: 1100, z: 0.42, r: 0,  label: 'Architektúra high level' },
+  { x: 11200, y: 1100, z: 0.62, r: -2, label: 'Miért helyi LLM?' },
+  { x: 11200, y: 3300, z: 0.56, r: 0,  label: 'Demó — hat kérdés' },
+  ...demos.map((demo, i) => ({
+    x: demo.x, y: demo.y, z: 0.60, r: 0,
+    label: `UC-${String(i + 1).padStart(2, '0')} · ${demo.title}`,
+  })),
+  { x: 11200, y: 5500, z: 0.54, r: -2, label: 'Továbbfejlesztés' },
+  { x: 11200, y: 7700, z: 0.56, r: 0,  label: 'Összegzés + Q&A' },
+  { x: 6400,  y: 4400, z: 0.15, r: 0,  label: 'Köszönjük!' },
 ]
 
 const idx = computed(() => Math.min(Math.max($clicks.value ?? 0, 0), W.length - 1))
@@ -40,12 +111,12 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { ro?.disconnect() })
 
-const OVERVIEW_IDX = new Set([1, 12])
+const OVERVIEW_IDX = new Set([1, W.length - 1])
 const camStyle = computed(() => {
   const c = current.value
-  // Áttekintés: a teljes tartalom-bbox (≈700..12050 × 500..6100) mindig férjen bele
+  // Fit all four rows, leaving room for the HUD.
   const z = OVERVIEW_IDX.has(idx.value)
-    ? Math.min(vw.value / 12600, vh.value / 6500) * 0.94
+    ? Math.min(vw.value / 12600, (vh.value - 64) / 8800) * 0.94
     : c.z
   return {
     transform:
@@ -54,7 +125,7 @@ const camStyle = computed(() => {
 })
 
 /* ---------- path (Prezi connector line) ---------- */
-const route = [0,2,3,4,5,6,7,8,9,10,11].map(i => W[i])
+const route = W.filter((_, i) => !OVERVIEW_IDX.has(i))
 const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
 
 </script>
@@ -65,11 +136,11 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
     <!-- ======= WORLD ======= -->
     <div class="pz-world" :style="camStyle">
       <!-- connector path -->
-      <svg class="pz-path" viewBox="0 0 12800 6600">
+      <svg class="pz-path" viewBox="0 0 12800 8800">
         <polyline :points="pathPoints" fill="none" stroke="#6ea8d8" stroke-width="4"
           stroke-dasharray="14 18" opacity="0.35" stroke-linejoin="round"/>
         <circle v-for="(p,i) in route" :key="i" :cx="p.x" :cy="p.y" r="14"
-          :fill="i+1===idx || (i===0&&idx===0) ? '#e8b23a' : '#6ea8d8'" opacity="0.85"/>
+          :fill="p===current ? '#e8b23a' : '#6ea8d8'" opacity="0.85"/>
       </svg>
 
       <!-- HERO -->
@@ -83,13 +154,13 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
       </section>
 
       <!-- AGENDA -->
-      <section class="pz-sec" :class="{ next: idx===1 }" style="left:4800px; top:1100px; width:1500px;">
+      <section class="pz-sec" :class="{ next: idx===2 }" style="left:4800px; top:1100px; width:1500px;">
         <div class="lp-panel">
           <div class="lp-kicker" style="font-size:22px;"><span class="idx">01 /</span> Agenda</div>
           <h3 style="font-size:60px; margin:18px 0 26px;">Ma három <span class="accent">csillagrendszer</span> járunk be</h3>
           <ul class="lp-points" style="font-size:29px;">
             <li><b>Architektúra high level</b> — helyi LLM, Red Hat offline knowledge base, mi fut és hol</li>
-            <li><b>Élő demó</b> — négy use-case fejlesztőknek és üzemeltetőknek: CrashLoop, HA, aggregált log, autoscaler</li>
+            <li><b>Élő demó</b> — hat use-case: klaszterverzió, Init:CrashLoopBackOff, HA, aggregált logok, autoscaler és ingress</li>
             <li><b>Továbbfejlesztés</b> — OTP-specifikus tudás, klaszter-introspekció, okos modellválasztás</li>
             <li class="dim">Felosztás: egyikünk az architektúrát mutatja be, másikunk a demót vezeti</li>
           </ul>
@@ -97,7 +168,7 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
       </section>
 
       <!-- ARCHITEKTÚRA -->
-      <section class="pz-sec" :class="{ next: idx===2 }" style="left:8000px; top:1100px; width:2500px;">
+      <section class="pz-sec" :class="{ next: idx===3 }" style="left:8000px; top:1100px; width:2500px;">
         <div class="lp-panel" style="padding:48px 56px;">
           <div class="lp-kicker" style="font-size:22px;"><span class="idx">02 /</span> Architektúra high level</div>
           <h3 style="font-size:58px; margin:16px 0 30px;">Minden <span class="accent">a klaszteren belül</span> marad</h3>
@@ -148,7 +219,7 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
       </section>
 
       <!-- MIÉRT LOKÁLIS -->
-      <section class="pz-sec" :class="{ next: idx===3 }" style="left:11200px; top:1100px; width:1500px;">
+      <section class="pz-sec" :class="{ next: idx===4 }" style="left:11200px; top:1100px; width:1500px;">
         <div class="lp-panel">
           <div class="lp-kicker" style="font-size:22px;"><span class="idx">03 /</span> Miért helyi LLM?</div>
           <h3 style="font-size:58px; margin:16px 0 24px;">Banki környezetben <span class="accent">nem opcionális</span></h3>
@@ -163,135 +234,52 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
       </section>
 
       <!-- DEMÓ ÁTTEKINTÉS -->
-      <section class="pz-sec" :class="{ next: idx===4 }" style="left:11200px; top:3300px; width:1700px;">
-        <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">04 /</span> Élő demó</div>
-          <h3 style="font-size:54px; margin:16px 0 26px;">Négy kérdés, <span class="accent">nulla dokumentáció-bányászat</span></h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px;">
-            <div class="lp-uc"><span class="no" style="font-size:20px;">UC-01</span>
-              <div class="q" style="font-size:27px;">Pod CrashLoop-ol, mi az oka?</div>
-              <div class="tag" style="font-size:16px;">Téma: <b>hibaelhárítás</b> · üzemeltető</div></div>
-            <div class="lp-uc"><span class="no" style="font-size:20px;">UC-02</span>
-              <div class="q" style="font-size:27px;">Hogyan lehet HA ez a deployment?</div>
-              <div class="tag" style="font-size:16px;">Téma: <b>architektúra</b> · fejlesztő</div></div>
-            <div class="lp-uc"><span class="no" style="font-size:20px;">UC-03</span>
-              <div class="q" style="font-size:27px;">Hol látom aggregálva az app összes példányának logját?</div>
-              <div class="tag" style="font-size:16px;">Téma: <b>obszervabilitás</b> · mindkettő</div></div>
-            <div class="lp-uc"><span class="no" style="font-size:20px;">UC-04</span>
-              <div class="q" style="font-size:27px;">Hogyan állítsak be autoscaler-t?</div>
-              <div class="tag" style="font-size:16px;">Téma: <b>skálázás</b> · fejlesztő</div></div>
+      <section class="pz-sec" :class="{ next: idx===5 }" style="left:11200px; top:3300px; width:1700px;">
+        <div class="lp-panel demo-overview">
+          <div class="lp-kicker"><span class="idx">04 /</span> Élő demó</div>
+          <h3>Hat kérdés, <span class="accent">élő klaszterkontextus</span></h3>
+          <div class="demo-grid">
+            <div v-for="(demo, i) in demos" :key="demo.title" class="lp-uc demo-card">
+              <span class="no">UC-{{ String(i + 1).padStart(2, '0') }}</span>
+              <h4>{{ demo.title }}</h4>
+              <p>{{ demo.summary }}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- DEMO 1 -->
-      <section class="pz-sec" :class="{ next: idx===5 }" style="left:8000px; top:3300px; width:1500px;">
-        <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">05 /</span> Demó · UC-01</div>
-          <div class="lp-quote" style="font-size:42px; margin:20px 0 6px;">Pod CrashLoop-ol, mi az oka?</div>
-          <div class="lp-quote-who" style="font-size:18px;">Mindenki, hétfő reggel</div>
-          <div class="lp-term" style="margin-top:26px;">
-            <div class="lp-term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl" style="font-size:16px;">lightspeed — konzol chat + webterminál</span></div>
-            <div class="lp-term-body" style="font-size:22px;">
-<div class="ln"><span class="cy">› Miért crashloopol a payment-service pod?</span></div>
-<div class="ln"><span class="out">A CrashLoopBackOff leggyakoribb okai:</span></div>
-<div class="ln"><span class="out">  1. OOMKilled (exit code 137) — memórialimit</span></div>
-<div class="ln"><span class="out">  2. Sikertelen liveness/readiness probe</span></div>
-<div class="ln">&nbsp;</div>
-<div class="ln"><span class="ps">$ </span><span class="cm">oc describe pod payment-7d9f | grep -A3 "Last State"</span></div>
-<div class="ln"><span class="out">    Reason: <span class="rd">OOMKilled</span> · Exit Code: 137</span></div>
-<div class="ln"><span class="yl">→ lightspeed: emeld a limits.memory-t, igazítsd a JVM -Xmx-et</span> <span class="lp-cursor"></span></div>
+      <!-- One camera stop per query; follow-ups stay on the same panel. -->
+      <section v-for="(demo, i) in demos" :key="demo.title"
+        class="pz-sec" :class="{ next: idx===i+6 }"
+        :style="{ left: `${demo.x}px`, top: `${demo.y}px`, width: '1700px' }">
+        <div class="lp-panel demo-panel">
+          <div class="lp-kicker"><span class="idx">{{ String(i + 5).padStart(2, '0') }} /</span> Demó · UC-{{ String(i + 1).padStart(2, '0') }}</div>
+          <h3>{{ demo.title }}</h3>
+          <div class="demo-query">
+            <div class="demo-caption">Kérdés</div>
+            <p>{{ demo.question }}</p>
+          </div>
+          <div v-if="demo.followup" class="demo-followup">
+            <div class="demo-caption">Következő kérés</div>
+            <p>{{ demo.followup }}</p>
+          </div>
+          <div class="demo-principle">
+            <div class="demo-caption">Mit mutatunk meg?</div>
+            <p>{{ demo.principle }}</p>
+          </div>
+          <div class="demo-flow" aria-label="A demó folyamata">
+            <div v-for="(step, stepIndex) in demo.flow" :key="step[0]">
+              <div class="demo-flow-title"><span>0{{ stepIndex + 1 }}</span>{{ step[0] }}</div>
+              <p>{{ step[1] }}</p>
             </div>
           </div>
-          <ol class="lp-steps" style="font-size:24px; margin-top:22px;">
-            <li>A kérdést <span class="m">magyarul</span> tesszük fel a konzol chatjében</li>
-            <li>A javasolt parancsokat azonnal futtatjuk a webterminálban</li>
-          </ol>
-        </div>
-      </section>
-
-      <!-- DEMO 2 -->
-      <section class="pz-sec" :class="{ next: idx===6 }" style="left:4800px; top:3300px; width:1500px;">
-        <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">06 /</span> Demó · UC-02</div>
-          <div class="lp-quote" style="font-size:42px; margin:20px 0 6px;">Hogyan lehet HA ez a deployment?</div>
-          <div class="lp-quote-who" style="font-size:18px;">Fejlesztő, go-live előtt egy nappal</div>
-          <div class="lp-term" style="margin-top:26px;">
-            <div class="lp-term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl" style="font-size:16px;">lightspeed — generált YAML</span></div>
-            <div class="lp-term-body" style="font-size:22px;">
-<div class="ln"><span class="cy">› Mitől lesz magas rendelkezésre állású?</span></div>
-<div class="ln"><span class="cm">spec:</span></div>
-<div class="ln"><span class="cm">  replicas: <span class="yl">3</span>   <span class="out"># min. 2, ideálisan 3</span></span></div>
-<div class="ln"><span class="cm">  template.spec.affinity:</span></div>
-<div class="ln"><span class="cm">    podAntiAffinity: <span class="out"># podok külön node-ra</span></span></div>
-<div class="ln">&nbsp;</div>
-<div class="ln"><span class="ps">$ </span><span class="cm">oc apply -f pdb.yaml <span class="out"># minAvailable: 1</span></span></div>
-<div class="ln"><span class="yl">→ lightspeed: PDB nélkül a node-drain mindent vihet</span> <span class="lp-cursor"></span></div>
-            </div>
-          </div>
-          <ol class="lp-steps" style="font-size:24px; margin-top:22px;">
-            <li>Checklist: replikák, <span class="m">podAntiAffinity</span>, PDB, probe-ok</li>
-            <li>Élő bizonyíték: node-drain alatt is él a szolgáltatás</li>
-          </ol>
-        </div>
-      </section>
-
-      <!-- DEMO 3 -->
-      <section class="pz-sec" :class="{ next: idx===7 }" style="left:4800px; top:5500px; width:1500px;">
-        <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">07 /</span> Demó · UC-03</div>
-          <div class="lp-quote" style="font-size:38px; margin:20px 0 6px;">Hol látom aggregálva az app összes példányának logját?</div>
-          <div class="lp-quote-who" style="font-size:18px;">Üzemeltető, incidens közben</div>
-          <div class="lp-term" style="margin-top:26px;">
-            <div class="lp-term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl" style="font-size:16px;">lightspeed — log aggregáció</span></div>
-            <div class="lp-term-body" style="font-size:22px;">
-<div class="ln"><span class="cy">› Hol látom egy helyen az összes replika logját?</span></div>
-<div class="ln"><span class="ps">$ </span><span class="cm">oc logs -l app=payment --prefix --since=30m | grep -i error</span></div>
-<div class="ln"><span class="out">  [pod/payment-6f8a/api] ERROR tx-4815 timeout</span></div>
-<div class="ln"><span class="out">  [pod/payment-9c2b/api] ERROR tx-4821 timeout</span></div>
-<div class="ln">&nbsp;</div>
-<div class="ln"><span class="out">Tartósan: Console → Observe → Logs (LokiStack):</span></div>
-<div class="ln"><span class="cm">  {kubernetes_labels_app="payment"} |= "ERROR"</span></div>
-<div class="ln"><span class="yl">→ lightspeed: a --prefix mutatja, melyik replika dobta</span> <span class="lp-cursor"></span></div>
-            </div>
-          </div>
-          <ol class="lp-steps" style="font-size:24px; margin-top:22px;">
-            <li>Gyors válasz CLI-ből: label-szelektor + <span class="m">--prefix</span></li>
-            <li>Élőben szűrünk ERROR szintre az összes replikában</li>
-          </ol>
-        </div>
-      </section>
-
-      <!-- DEMO 4 -->
-      <section class="pz-sec" :class="{ next: idx===8 }" style="left:8000px; top:5500px; width:1500px;">
-        <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">08 /</span> Demó · UC-04</div>
-          <div class="lp-quote" style="font-size:42px; margin:20px 0 6px;">Hogyan állítsak be autoscaler-t?</div>
-          <div class="lp-quote-who" style="font-size:18px;">Fejlesztő, kampánycsúcs előtt</div>
-          <div class="lp-term" style="margin-top:26px;">
-            <div class="lp-term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl" style="font-size:16px;">lightspeed — HPA</span></div>
-            <div class="lp-term-body" style="font-size:22px;">
-<div class="ln"><span class="cy">› Állítsak be autoscalert a payment deploymentre.</span></div>
-<div class="ln"><span class="ps">$ </span><span class="cm">oc autoscale deployment payment --min=3 --max=12 --cpu-percent=70</span></div>
-<div class="ln"><span class="out">  horizontalpodautoscaler.autoscaling/payment autoscaled</span></div>
-<div class="ln">&nbsp;</div>
-<div class="ln"><span class="ps">$ </span><span class="cm">oc get hpa payment -w</span></div>
-<div class="ln"><span class="out">  NAME     TARGETS   MIN  MAX  REPLICAS</span></div>
-<div class="ln"><span class="out">  payment  84%/70%   3    12   <span class="yl">3 → 5 → 8</span></span></div>
-<div class="ln"><span class="yl">→ lightspeed: egyéni metrikára (queue-hossz) KEDA-t javasol</span> <span class="lp-cursor"></span></div>
-            </div>
-          </div>
-          <ol class="lp-steps" style="font-size:24px; margin-top:22px;">
-            <li>Előfeltétel: CPU request — különben nincs mérőszám</li>
-            <li>Élőben terhelünk, és nézzük, ahogy skáláz</li>
-          </ol>
         </div>
       </section>
 
       <!-- TOVÁBBFEJLESZTÉS -->
-      <section class="pz-sec" :class="{ next: idx===9 }" style="left:11200px; top:5500px; width:1700px;">
+      <section class="pz-sec" :class="{ next: idx===12 }" style="left:11200px; top:5500px; width:1700px;">
         <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">09 /</span> Továbbfejlesztés</div>
+          <div class="lp-kicker" style="font-size:22px;"><span class="idx">11 /</span> Továbbfejlesztés</div>
           <h3 style="font-size:54px; margin:16px 0 24px;">Innen már csak a <span class="accent">saját tudásunk</span> hiányzik</h3>
           <ul class="lp-points" style="font-size:27px;">
             <li><b>OTP-specifikus tudás (BYOK RAG)</b> — saját runbookok, SecOps-folyamatok: <span class="m">„Hogyan lehet tűzfalat nyitni erre a pod-ra?”</span></li>
@@ -304,13 +292,13 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
       </section>
 
       <!-- ZÁRÁS -->
-      <section class="pz-sec" :class="{ next: idx===10 }" style="left:1600px; top:3300px; width:1600px;">
+      <section class="pz-sec" :class="{ next: idx===13 }" style="left:11200px; top:7700px; width:1600px;">
         <div class="lp-panel">
-          <div class="lp-kicker" style="font-size:22px;"><span class="idx">10 /</span> Összegzés</div>
+          <div class="lp-kicker" style="font-size:22px;"><span class="idx">12 /</span> Összegzés</div>
           <h3 style="font-size:52px; margin:16px 0 24px;">A klaszter <span class="accent">tudja a választ</span> — végre meg is kérdezhetjük</h3>
           <ul class="lp-points" style="font-size:28px;">
             <li><b>Helyi LLM + offline Red Hat tudásbázis</b> = AI-asszisztens banki környezetre</li>
-            <li><b>A demó négy kérdése</b> a ti mindennapjaitokból jött</li>
+            <li><b>A demó hat kérdése</b> a ti mindennapjaitokból jött</li>
           </ul>
           <div class="lp-links lp-mono" style="font-size:22px; margin-top:30px; display:flex; flex-direction:column; gap:14px;">
             <div><span class="lbl" style="font-size:16px;">Szolgáltatás</span><a href="https://github.com/openshift/lightspeed-service">github.com/openshift/lightspeed-service</a></div>
@@ -336,13 +324,37 @@ const pathPoints = route.map(p => `${p.x},${p.y}`).join(' ')
 <style scoped>
 .pz-root{position:absolute;inset:0;background:transparent;overflow:hidden}
 
-.pz-world{position:absolute;left:0;top:0;width:12800px;height:6600px;transform-origin:0 0;
+.pz-world{position:absolute;left:0;top:0;width:12800px;height:8800px;transform-origin:0 0;
   transition:transform 1.5s cubic-bezier(.22,.61,.36,1);will-change:transform}
-.pz-path{position:absolute;left:0;top:0;width:12800px;height:6600px;pointer-events:none}
+.pz-path{position:absolute;left:0;top:0;width:12800px;height:8800px;pointer-events:none}
 .pz-sec{position:absolute;transform:translate(-50%,-50%);transition:filter .8s}
 .pz-sec.next .lp-panel{animation:nextGlow 2s infinite}
 @keyframes nextGlow{0%,100%{box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 0 0 rgba(232,178,58,0)}
   50%{box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 44px 4px rgba(232,178,58,.28)}}
+
+.demo-overview .lp-kicker,.demo-panel .lp-kicker{font-size:22px}
+.demo-overview h3,.demo-panel h3{font-size:54px;margin:18px 0 30px}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.demo-card{padding:30px 34px}
+.demo-card .no{position:static;display:block;font-size:18px;margin-bottom:12px}
+.demo-card h4{font-family:var(--lp-display);font-size:32px;font-weight:700;margin:0 0 10px;color:var(--lp-text)}
+.demo-card p{font-size:23px;line-height:1.4;margin:0;color:var(--lp-dim)}
+.demo-panel{padding:48px 56px}
+.demo-query,.demo-followup{padding:24px 30px;border-radius:14px}
+.demo-query{background:#0a0e14f2;border:1px solid var(--lp-border);border-left:5px solid var(--lp-steel)}
+.demo-followup{margin-top:20px;background:var(--lp-glass-flat);border:1px solid var(--lp-border);border-left:5px solid var(--lp-gold)}
+.demo-caption{font-family:var(--lp-mono);font-size:18px;letter-spacing:.2em;text-transform:uppercase;color:var(--lp-steel);margin-bottom:14px}
+.demo-followup .demo-caption{color:var(--lp-gold)}
+.demo-query p{font-size:34px;line-height:1.4;margin:0;overflow-wrap:anywhere}
+.demo-followup p{font-size:28px;line-height:1.4;margin:0;overflow-wrap:anywhere}
+.demo-principle{display:grid;grid-template-columns:260px 1fr;align-items:center;gap:28px;margin-top:22px;padding:20px 28px;border-top:1px solid var(--lp-border)}
+.demo-principle .demo-caption{margin:0;color:var(--lp-gold)}
+.demo-principle p{font-size:25px;line-height:1.4;margin:0;color:var(--lp-text)}
+.demo-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.demo-flow>div{padding:16px 18px;border:1px solid var(--lp-border);border-radius:10px;background:#0a0e1499}
+.demo-flow-title{display:flex;align-items:center;gap:12px;font-family:var(--lp-mono);font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:var(--lp-dim)}
+.demo-flow-title span{color:var(--lp-gold)}
+.demo-flow p{font-size:18px;line-height:1.35;margin:10px 0 0;color:var(--lp-text)}
 
 .hero{padding:40px}
 .hero-title{font-family:var(--lp-display);font-size:118px;font-weight:900;letter-spacing:-.02em;line-height:1.04;margin:24px 0;white-space:nowrap}
