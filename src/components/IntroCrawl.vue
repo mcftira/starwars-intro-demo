@@ -7,6 +7,9 @@ const { $nav } = useSlideContext()
 const stage = ref('gate') // gate -> film -> blue -> logo -> crawl
 const muted = ref(false)
 const hasVideo = ref(true)
+/* A video src-t csak a gombra kattintva kotjuk be: igy a hianyzó
+   video/intro.mp4 nem general felesleges 404-et minden oldalbetolteskor. */
+const videoSrc = ref(null)
 const timers = []
 let audio = null
 let video = null
@@ -21,6 +24,7 @@ const F = { blue: 0, logo: 5000, crawl: 13000, done: 95000 }
 function later(fn, ms){ timers.push(setTimeout(fn, ms)) }
 
 function start(){
+  videoSrc.value = 'video/intro.mp4'
   video = document.getElementById('intro-film')
   if (video && hasVideo.value){
     video.volume = .9
@@ -38,9 +42,9 @@ function fallback(){
   if (video){ video.removeAttribute('src'); video = null }
   hasVideo.value = false
   stage.value = 'blue'
-  audio = new Audio('audio/fanfare.mp3')
+  audio = new Audio('audio/theme.mp3')
   audio.loop = true
-  audio.volume = .85
+  audio.volume = .5   // 50%: a felhasználó kérése szerint halkan
   audio.play().catch(()=>{})
   later(()=>{ stage.value = 'logo' }, F.logo)
   later(()=>{ stage.value = 'crawl' }, F.crawl)
@@ -108,7 +112,7 @@ onBeforeUnmount(()=>{
       v-show="hasVideo && stage==='film'"
       id="intro-film"
       class="film"
-      :src="'video/intro.mp4'"
+      :src="videoSrc"
       preload="auto"
       playsinline
       @error="onVideoError"
@@ -143,8 +147,8 @@ onBeforeUnmount(()=>{
         <div class="crawl-inner">
           <div class="episode">Episode 4.x</div>
           <h1>A fénysebesség kora</h1>
-          <p>Zűrzavar uralkodik a galaxis klasztereiben. A podok <span class="em">CrashLoopBackOff</span> állapotba zuhantak, a deploymentek nem magas rendelkezésre állásúak, a logok pedig szétszóródtak a replikák között.</p>
-          <p>A sötét oldal fegyvere a kilencszáz oldalas dokumentáció és a végtelen <span class="em">kubectl debug</span>. Egyetlen remény maradt: az <span class="em">OPENSHIFT LIGHTSPEED</span> — helyi, offline mesterséges intelligencia, amely a Red Hat tudásbázisával válaszol, anélkül hogy egyetlen bit is elhagyná a klasztert.</p>
+          <p>Zűrzavar uralkodik a galaxis klasztereiben. A podok <span class="em">CrashLoopBackOff</span> állapotba zuhantak, a deploymenteknél hiányzik a magas rendelkezésre állás, a logok pedig szétszóródtak a replikák között.</p>
+          <p>A sötét oldal fegyvere a kilencszáz oldalas dokumentáció és a végtelen <span class="em">kubectl debug</span>. Egyetlen remény maradt: az <span class="em">OPENSHIFT LIGHTSPEED</span> — helyi, offline mesterséges intelligencia, amely a Red Hat tudásbázisával válaszol, anélkül, hogy egyetlen bit is elhagyná a klasztert.</p>
           <p>A <span class="em">PLATFORM FÓRUM</span> hősei most bemutatják az architektúrát, és élő demóban bizonyítják: az Erő&hellip; izé, a <span class="em">RAG</span> velünk van&hellip;</p>
         </div>
       </div>
@@ -162,11 +166,17 @@ onBeforeUnmount(()=>{
 .film{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:5;background:#000}
 
 .gate{cursor:pointer;flex-direction:column;gap:26px;z-index:6}
-.gate-ring{width:120px;height:120px;border:2px solid var(--lp-yellow);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite}
+.gate-ring{position:relative;width:120px;height:120px;border:2px solid var(--lp-yellow);border-radius:50%;
+  display:flex;align-items:center;justify-content:center}
+/* A lukteto halo korabban box-shadow-t animalt -> minden keretben ujrafestes.
+   Most egy kulon retegen egy pseudo-elem attereszodik es nyulik, amit a
+   kompozitor vegez: ugyanaz a latvany, festes nelkul. */
+.gate-ring::after{content:"";position:absolute;inset:-2px;border-radius:50%;
+  box-shadow:0 0 0 22px rgba(255,232,31,.35);opacity:0;pointer-events:none;
+  animation:pulse 2s ease-out infinite;will-change:opacity,transform}
 .gate-ring svg{width:44px;height:44px;fill:var(--lp-yellow);margin-left:8px}
 .gate p{font-family:var(--lp-mono);font-size:13px;letter-spacing:.35em;color:var(--lp-yellow);text-transform:uppercase}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,232,31,.35)}50%{box-shadow:0 0 0 22px rgba(255,232,31,0)}}
+@keyframes pulse{0%{opacity:.9;transform:scale(.82)}70%{opacity:0;transform:scale(1.18)}100%{opacity:0;transform:scale(1.18)}}
 
 .blue{font-family:var(--lp-crawl);color:#4bd5ee;font-weight:600;font-size:38px;letter-spacing:.06em;text-align:center;padding:0 8vw;line-height:1.5}
 .lp-fade-enter-active,.lp-fade-leave-active{transition:opacity 1.2s ease}
@@ -187,7 +197,7 @@ onBeforeUnmount(()=>{
   mask-image:linear-gradient(180deg,transparent 0%,#000 34%)}
 .crawl-plane{position:absolute;left:50%;bottom:0;width:min(86%,920px);
   transform-origin:50% 100%;transform:translateX(-50%) rotateX(57deg)}
-.crawl-inner{animation:scroll 78s linear forwards}
+.crawl-inner{animation:scroll 78s linear forwards;will-change:transform;backface-visibility:hidden}
 @keyframes scroll{from{transform:translateY(105%)}to{transform:translateY(-340%)}}
 .episode{font-family:var(--lp-crawl);font-weight:700;font-size:22px;letter-spacing:.3em;text-align:center;
   color:var(--lp-yellow);margin-bottom:1.6em;text-transform:uppercase}
@@ -199,8 +209,15 @@ onBeforeUnmount(()=>{
 
 .nav-btn{position:absolute;bottom:24px;z-index:7;font-family:var(--lp-mono);font-size:12px;
   letter-spacing:.25em;color:var(--lp-dim);background:none;border:1px solid var(--lp-border);
-  padding:10px 18px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+  padding:10px 18px;cursor:pointer;text-transform:uppercase;transition:color .2s,border-color .2s}
 .nav-btn:hover{color:var(--lp-yellow);border-color:var(--lp-yellow)}
 .nav-btn.skip{right:28px}
 .nav-btn.mute{left:28px}
+
+/* Mozgaservenyes felhasznalok: a csuszó szoveg es a logo-zoom helyett alló kep. */
+@media (prefers-reduced-motion: reduce){
+  .crawl-inner{animation:none;transform:translateY(-40%)}
+  .logo.zoom{animation:none;transform:scale(1);opacity:1}
+  .gate-ring::after{animation:none;opacity:.35}
+}
 </style>

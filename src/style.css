@@ -45,8 +45,11 @@ body{background:var(--lp-bg)}
 .lp-kicker .idx{color:var(--lp-gold)}
 
 /* terminal */
+/* backdrop-filter:blur(8px) helyett semmi: a hatter 95%-ban fedő (f2),
+   ezert a mogottes elmosas úgysem latszott - viszont minden egyes keretben
+   ujra kellett szamolni a kamera mozgasa alatt. */
 .lp-term{background:#0a0e14f2;border:1px solid var(--lp-border);border-radius:14px;overflow:hidden;
-  box-shadow:0 10px 40px rgba(0,0,0,.55);backdrop-filter:blur(8px);text-align:left}
+  box-shadow:0 10px 40px rgba(0,0,0,.55);text-align:left}
 .lp-term-bar{display:flex;align-items:center;gap:10px;background:var(--lp-glass-head);padding:14px 18px;
   border-bottom:1px solid var(--lp-border)}
 .lp-term-bar .dot{width:13px;height:13px;border-radius:50%;opacity:.85}
@@ -65,8 +68,8 @@ body{background:var(--lp-bg)}
 @keyframes lp-blink{0%,45%{opacity:1}60%,100%{opacity:0}}
 
 /* world panel */
-.lp-panel{background:var(--lp-glass);border:1px solid var(--lp-border);border-radius:18px;
-  padding:56px 64px;backdrop-filter:blur(8px);box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:left}
+.lp-panel{position:relative;background:var(--lp-glass);border:1px solid var(--lp-border);border-radius:18px;
+  padding:56px 64px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:left}
 .lp-panel h3{font-family:var(--lp-display);font-weight:800;line-height:1.1;letter-spacing:-.01em}
 .lp-panel h3 .accent{color:var(--lp-gold)}
 
@@ -97,22 +100,6 @@ body{background:var(--lp-bg)}
 .lp-uc .tag b{color:var(--lp-steel);font-weight:400}
 
 /* arch nodes */
-.lp-arch{display:grid;grid-template-columns:1fr 90px 1.35fr 90px 1fr;align-items:stretch}
-.lp-arch .arrow{display:flex;align-items:center;justify-content:center;position:relative}
-.lp-arch .arrow::before{content:"";width:100%;height:2px;background:linear-gradient(90deg,var(--lp-steel),transparent)}
-.lp-arch .arrow::after{content:"";position:absolute;right:8px;width:13px;height:13px;border-top:2px solid var(--lp-steel);
-  border-right:2px solid var(--lp-steel);transform:rotate(45deg)}
-.lp-anode{background:var(--lp-glass-flat);border:1px solid var(--lp-border);border-radius:14px;padding:28px 32px}
-.lp-anode h4{font-family:var(--lp-mono);letter-spacing:.25em;color:var(--lp-steel);text-transform:uppercase;margin-bottom:14px}
-.lp-anode .big{font-weight:700;line-height:1.3;margin-bottom:14px}
-.lp-anode ul{list-style:none;margin:0;padding:0}
-.lp-anode li{font-family:var(--lp-mono);color:var(--lp-dim);padding:7px 0;border-top:1px solid var(--lp-border-soft);line-height:1.45}
-.lp-anode li b{color:var(--lp-text)}
-.lp-subnode{background:#0d121af5;border:1px dashed var(--lp-border);border-radius:14px;padding:22px 32px}
-.lp-subnode h4{font-family:var(--lp-mono);letter-spacing:.25em;color:var(--lp-gold);text-transform:uppercase;margin-bottom:10px}
-.lp-subnode p{font-family:var(--lp-mono);color:var(--lp-dim);line-height:1.6}
-.lp-subnode p b{color:var(--lp-text)}
-
 /* quote */
 .lp-quote{font-family:var(--lp-display);font-weight:700;line-height:1.3;color:#fff}
 .lp-quote::before{content:"„";color:var(--lp-gold);font-size:1.5em;line-height:0;margin-right:8px}
@@ -122,3 +109,49 @@ body{background:var(--lp-bg)}
 .lp-links a{color:var(--lp-steel);text-decoration:none;border-bottom:1px solid transparent}
 .lp-links a:hover{border-bottom-color:var(--lp-steel)}
 .lp-links .lbl{display:inline-block;width:340px;color:var(--lp-dim);letter-spacing:.2em;text-transform:uppercase}
+
+/* ---------- Architektúra-kártya (02 /) ----------
+   Felhasználó → AI flow: három nagy csomópont, két óriási nyíl, alul egy
+   betápláló tudásbázis. Szándékosan kevés szöveg, nagy betű: vetítésben
+   egy pillantás alatt olvasható. */
+.arch-kicker{font-size:28px}
+.arch-h3{font-family:var(--lp-display);font-weight:800;line-height:1.1;
+  letter-spacing:-.01em;font-size:88px;margin:12px 0 10px}
+.arch-h3 .accent{color:var(--lp-gold)}
+.arch-eyebrow{font-family:var(--lp-mono);font-size:26px;letter-spacing:.26em;
+  text-transform:uppercase;color:#8fc1ea;margin:0 0 18px}
+.arch-claim{font-family:var(--lp-display);font-weight:700;font-size:46px;line-height:1.15;
+  letter-spacing:-.01em;color:#9fc6e8;margin:0 0 34px}
+
+.flow-grid{display:grid;grid-template-columns:1fr 130px 1.15fr 130px 1fr;
+  grid-template-rows:auto auto}
+.flow-node{background:#151d2b;border:1.5px solid #3c4a63;border-radius:18px;
+  padding:32px 34px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.flow-kick{font-family:var(--lp-mono);font-size:26px;letter-spacing:.2em;
+  text-transform:uppercase;color:#8fc1ea}
+.flow-title{font-family:var(--lp-display);font-size:58px;font-weight:800;line-height:1.12;
+  color:#f4f2ea}
+.flow-line{font-family:var(--lp-mono);font-size:29px;line-height:1.45;color:#c9d2de}
+.flow-arrow{display:flex;align-items:center;justify-content:center;
+  font-size:110px;line-height:1;color:var(--lp-steel)}
+.flow-under{display:flex;flex-direction:column;align-items:stretch}
+.flow-up{text-align:center;font-size:64px;line-height:1;color:var(--lp-gold);margin:16px 0}
+.flow-kb{border-color:rgba(232,178,58,.55)}
+.flow-kb .flow-kick{color:var(--lp-gold)}
+.flow-spacer{min-height:0}
+
+/* ---------- poén-kártya (03 / Miért helyi LLM?) ----------
+   Szándékosan csak a punchline: óriási szöveg közvetlenül a csillagos
+   háttéren, panel és felsorolás nélkül. */
+.joke-sec{text-align:center}
+.joke-panel{padding:92px 80px 88px}
+.joke-kick{font-family:var(--lp-mono);font-size:30px;letter-spacing:.3em;
+  text-transform:uppercase;color:#8fc1ea;margin-bottom:44px}
+.joke-kick .idx{color:var(--lp-gold)}
+.joke-h3{font-family:var(--lp-display);font-weight:800;font-size:132px;line-height:1.05;
+  letter-spacing:-.02em;color:#f4f2ea;margin:0}
+.joke-h3 .accent{color:var(--lp-gold)}
+.joke-smile{font-family:var(--lp-mono);font-weight:400;font-size:106px;color:var(--lp-steel)}
+
+/* külön sáv a kártya alján (pl. útiterv): mono, kicsit halványabb, de olvasható */
+.lp-note{font-family:var(--lp-mono);font-size:30px;line-height:1.4;color:#a7b6c9;margin-top:26px}

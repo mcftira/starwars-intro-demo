@@ -21,7 +21,11 @@ layout: none
 
 ---
 layout: none
-clicks: 12
+# A clicks erteke = a PreziCanvas.vue-beli W tomb waypoint-szama - 1.
+# W = 9 fix waypoint + 6 demo (demos tomb) = 15 -> ezert 14.
+# Ha bovul a demos tomb vagy a W, ezt a szamot is novelni kell,
+# kulonben az utolso diakok (Osszegzes, Koszonjuk) nem erhetoek el.
+clicks: 14
 ---
 
 <PreziCanvas />
